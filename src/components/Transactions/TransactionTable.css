@@ -1,0 +1,16 @@
+.error-tooltip {
+  position: absolute;
+  top: 100%; /* Sits exactly under the inputs */
+  right: 0;
+  color: #d93025;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 8px;
+  background-color: #fff1f0; /* Light red background */
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid #ffa39e;
+  z-index: 999; /* Ensure it stays on top of the table */
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}

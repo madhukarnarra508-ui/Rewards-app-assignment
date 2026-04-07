@@ -1,0 +1,120 @@
+/* Container styling */
+.table-wrapper {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+  margin-bottom: 40px;
+  border: 1px solid #edf2f7;
+}
+
+
+
+/* Modern Table Layout */
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-bottom: 20px;
+}
+
+.table th {
+  background-color: #f8fafc;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 12px;
+  padding: 16px;
+  text-align: left;
+  border-bottom: 2px solid #e2e8f0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.table th:hover {
+  background-color: #f1f5f9;
+  color: #334155;
+}
+
+.table td {
+  padding: 16px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  font-size: 14px;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.table tr:hover td {
+  background-color: #f8fafc;
+}
+
+
+
+/* Pagination Buttons */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 10px;
+}
+
+.pagination button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #475569;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.pagination button:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  font-size: 14px;
+  color: #64748b;
+  font-weight: 500;
+}
+.table-footer {
+  display: flex;
+  justify-content: space-between; /* Pushes content to the left and right edges */
+  align-items: center;            /* Centers them vertically so they are level */
+  padding: 15px 0;
+  margin-top: 10px;
+  border-top: 1px solid #e2e8f0;  /* Optional: adds a subtle line above the controls */
+}
+
+.rows-per-page {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #4a5568;
+}
+
+.rows-per-page select {
+  padding: 4px 8px;
+  border: 1px solid #cbd5e0;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+}
+.pagination{
+  .page-link{
+    border: none;
+    color: #000;
+  }
+}

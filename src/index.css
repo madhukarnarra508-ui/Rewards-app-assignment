@@ -1,0 +1,29 @@
+:root {
+  --primary: #4f46e5;       /* Modern Indigo */
+  --bg-soft: #f8fafc;      /* Soft background */
+  --text-main: #1e293b;    /* Slate 800 */
+  --text-muted: #64748b;   /* Slate 500 */
+  --glass-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+}
+
+body {
+  background-color: var(--bg-soft) !important;
+  color: var(--text-main);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.card {
+  border: none !important;
+  border-radius: 12px !important;
+  box-shadow: var(--glass-shadow) !important;
+}
+
+/* Customizing the "Points" badge for the Table component */
+.points-pill {
+  background: #eef2ff !important;
+  color: #4f46e5 !important;
+  font-weight: 600;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  display: inline-block;
+}

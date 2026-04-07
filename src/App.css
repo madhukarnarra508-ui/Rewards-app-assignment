@@ -1,0 +1,22 @@
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  background-color: #f7fafc;
+  min-height: 100vh;
+}
+
+h1 {
+  color: #1a202c;
+  margin-bottom: 32px;
+  font-weight: 800;
+  text-align: center;
+}
+
+h2 {
+  color: #2d3748;
+  font-size: 1.5rem;
+  margin-bottom: 16px;
+  border-left: 4px solid #4a90e2;
+  padding-left: 12px;
+}
