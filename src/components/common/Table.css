@@ -83,11 +83,6 @@
   cursor: not-allowed;
 }
 
-.pagination span {
-  font-size: 14px;
-  color: #64748b;
-  font-weight: 500;
-}
 .table-footer {
   display: flex;
   justify-content: space-between; /* Pushes content to the left and right edges */
@@ -95,14 +90,6 @@
   padding: 15px 0;
   margin-top: 10px;
   border-top: 1px solid #e2e8f0;  /* Optional: adds a subtle line above the controls */
-}
-
-.rows-per-page {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: #4a5568;
 }
 
 .rows-per-page select {
