@@ -58,6 +58,8 @@ const MonthlyRewardsTable = ({ transactions, noDataMessage }) => {
         data={data}
         pageSize={5}
         noDataMessage={noDataMessage}
+        groupBy="customerId"
+        groupColumns={["customerId","customer"]}
       />
     </>
   );

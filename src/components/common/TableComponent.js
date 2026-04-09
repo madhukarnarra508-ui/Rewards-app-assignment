@@ -20,15 +20,21 @@ import "./Table.css";
  * @param {string} [props.noDataMessage] - Custom message to display when no records match filters.
  * * @returns {React.ReactElement} A responsive data table with controls.
  */
-
 const TableComponent = React.memo(
-  ({ columns, data, pageSize: initialPageSize, noDataMessage }) => {
+  ({
+    columns,
+    data,
+    pageSize: initialPageSize,
+    noDataMessage,
+    groupBy,
+    groupColumns,
+  }) => {
     const [sortConfig, setSortConfig] = useState(null);
     const [filterText, setFilterText] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(initialPageSize);
 
-    // 1. Filter rows based on global search text
+    // 1. Filter raw data based on search
     const filteredData = useMemo(() => {
       if (!filterText) return data;
       return data?.filter((row) =>
@@ -38,42 +44,63 @@ const TableComponent = React.memo(
       );
     }, [data, filterText]);
 
-    // 2. Sort rows based on current sort configuration
+    // 2. Sort filtered data (Ensures grouping works correctly)
     const sortedData = useMemo(() => {
-      if (!sortConfig) return filteredData;
-      const { key, direction } = sortConfig;
+      let sortableData = [...filteredData];
+      const activeSort =
+        sortConfig || (groupBy ? { key: groupBy, direction: "asc" } : null);
 
-      return [...filteredData].sort((a, b) => {
-        let valA = a[key];
-        let valB = b[key];
+      if (activeSort) {
+        const { key, direction } = activeSort;
+        sortableData.sort((a, b) => {
+          let valA = a[key];
+          let valB = b[key];
+          if (typeof valA === "string" && key.toLowerCase().includes("date")) {
+            valA = new Date(valA).getTime();
+            valB = new Date(valB).getTime();
+          }
+          if (valA < valB) return direction === "asc" ? -1 : 1;
+          if (valA > valB) return direction === "asc" ? 1 : -1;
+          return 0;
+        });
+      }
+      return sortableData;
+    }, [filteredData, sortConfig, groupBy]);
 
-        // Check if the value is a date string (e.g., "2/11/2024")
-        // and convert to a number for chronological sorting
-        if (key.toLowerCase().includes("date")) {
-          valA = new Date(valA).getTime();
-          valB = new Date(valB).getTime();
+    // 3. LOGIC CHANGE: Group the ENTIRE sorted list before paginating
+    const allGroups = useMemo(() => {
+      if (!groupBy) {
+        // If no grouping, treat every row as a single group
+        return sortedData.map((row) => ({ rows: [row] }));
+      }
+
+      const groups = [];
+      let lastValue = null;
+
+      sortedData.forEach((row) => {
+        const groupValue = row[groupBy];
+        if (groupValue === lastValue && groups.length > 0) {
+          groups[groups.length - 1].rows.push(row);
+        } else {
+          groups.push({ value: groupValue, rows: [row] });
+          lastValue = groupValue;
         }
-
-        if (valA < valB) return direction === "asc" ? -1 : 1;
-        if (valA > valB) return direction === "asc" ? 1 : -1;
-        return 0;
       });
-    }, [filteredData, sortConfig]);
+      return groups;
+    }, [sortedData, groupBy]);
 
-    // Reset to page 1 whenever the filter changes
+    // 4. LOGIC CHANGE: Paginate the groups (not raw rows)
+    const paginatedGroups = useMemo(() => {
+      const startIndex = (currentPage - 1) * rowsPerPage;
+      return allGroups.slice(startIndex, startIndex + rowsPerPage);
+    }, [allGroups, currentPage, rowsPerPage]);
+
+    // Calculate total pages based on groups/customers
+    const totalPages = Math.ceil(allGroups.length / rowsPerPage) || 1;
+
     useEffect(() => {
       setCurrentPage(1);
     }, [filterText, rowsPerPage, data]);
-
-    // 3. Paginate sorted data
-    const paginatedData = useMemo(() => {
-      const startIndex = (currentPage - 1) * rowsPerPage;
-      return sortedData?.slice(startIndex, startIndex + rowsPerPage);
-    }, [sortedData, currentPage, rowsPerPage]);
-
-    // 4. Correct Total Pages calculation
-    const totalPages =
-      Math.ceil((filteredData?.length || 0) / rowsPerPage) || 1;
 
     const handleSort = (columnKey) => {
       setSortConfig((prev) =>
@@ -99,7 +126,9 @@ const TableComponent = React.memo(
           </Col>
         </Row>
 
-        <BSTable striped bordered hover responsive className="mb-0">
+        <BSTable striped={!groupBy} bordered hover responsive
+        className={`mb-0 custom-grouped-table ${!groupBy ? "standard-striped" : ""}`}
+        >
           <thead className="table-light">
             <tr>
               {columns.map((col) => (
@@ -113,7 +142,6 @@ const TableComponent = React.memo(
                     padding: "15px 10px",
                     fontWeight: "600",
                     fontSize: "0.9rem",
-                    border: "none",
                   }}
                 >
                   {col.label}{" "}
@@ -129,27 +157,55 @@ const TableComponent = React.memo(
             </tr>
           </thead>
           <tbody>
-            {paginatedData.length > 0 ? (
-              paginatedData.map((row, index) => (
-                <tr key={row.id || `row-${index}`}>
-                  {columns.map((col) => (
-                    <td key={col.key}>
-                      {col.key.toLowerCase().includes("points") ? (
-                        <span className="fw-bold">{row[col.key]}</span>
-                      ) : (
-                        row[col.key]
-                      )}
-                    </td>
-                  ))}
-                </tr>
-              ))
+            {paginatedGroups.length > 0 ? (
+              paginatedGroups.map((group, groupIdx) => {
+                // Determine stripe class based on the customer group index
+                const stripeClass =
+                  groupIdx % 2 === 0 ? "group-row-odd" : "group-row-even";
+
+                return group.rows.map((row, rowIndex) => (
+                  <tr
+                    key={`${groupIdx}-${rowIndex}`}
+                    className={groupBy ? stripeClass : ""}
+                  >
+                    {columns.map((col) => {
+                      const isGroupedCol =
+                        groupColumns?.includes(col.key) && groupBy;
+
+                      if (isGroupedCol) {
+                        if (rowIndex === 0) {
+                          return (
+                            <td
+                              key={col.key}
+                              rowSpan={group.rows.length}
+                              className="grouped-cell"
+                            >
+                              {row[col.key]}
+                            </td>
+                          );
+                        }
+                        return null;
+                      }
+
+                      return (
+                        <td key={col.key}>
+                          {col.key.toLowerCase().includes("points") ? (
+                            <span className="fw-bold">{row[col.key]}</span>
+                          ) : (
+                            row[col.key]
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ));
+              })
             ) : (
               <tr>
                 <td
                   colSpan={columns.length}
                   className="text-center py-5 text-muted"
                 >
-                  {/* Uses the prop or a default if not provided */}
                   {noDataMessage || "No records found matching your criteria."}
                 </td>
               </tr>
@@ -157,11 +213,12 @@ const TableComponent = React.memo(
           </tbody>
         </BSTable>
 
-        {/* Only show the footer and pagination if there is actual data to navigate */}
-        {filteredData.length > 0 && (
+        {allGroups.length > 0 && (
           <Row className="mt-3 align-items-center">
             <Col xs={12} sm={6} className="d-flex align-items-center gap-2">
-              <small className="text-muted">Rows:</small>
+              <small className="text-muted">
+                Rows:
+              </small>
               <Form.Select
                 size="sm"
                 style={{ width: "auto" }}
@@ -175,14 +232,14 @@ const TableComponent = React.memo(
             <Col
               xs={12}
               sm={6}
-              className="d-flex justify-content-sm-end mt-2 mt-sm-0 pagination"
+              className="d-flex justify-content-sm-end mt-2 mt-sm-0"
             >
               <Pagination size="sm" className="mb-0">
                 <Pagination.Prev
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage((p) => p - 1)}
                 />
-                <Pagination.Item className="fw-bold">
+                <Pagination.Item active>
                   {currentPage} / {totalPages}
                 </Pagination.Item>
                 <Pagination.Next
@@ -201,11 +258,13 @@ const TableComponent = React.memo(
 TableComponent.propTypes = {
   columns: PropTypes.array.isRequired,
   data: PropTypes.array.isRequired,
-  initialPageSize: PropTypes.number,
+  pageSize: PropTypes.number,
+  groupBy: PropTypes.string,
+  groupColumns: PropTypes.array,
 };
 
 TableComponent.defaultProps = {
-  initialPageSize: 5,
+  pageSize: 5,
 };
 
 export default TableComponent;

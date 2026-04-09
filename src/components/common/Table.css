@@ -8,7 +8,34 @@
   border: 1px solid #edf2f7;
 }
 
+/* 1. Ensure the table doesn't have default striping enabled via props if using grouping */
+.custom-grouped-table {
+    border-collapse: collapse !important;
+}
 
+/* 2. Target the cells (td) inside the even-indexed customer groups */
+.custom-grouped-table tr.group-row-even td {
+     background-color: #ffffff !important; /* White */
+}
+
+/* 3. Target the cells (td) inside the odd-indexed customer groups */
+.custom-grouped-table tr.group-row-odd td {
+  background-color: #f8fafc !important; /* Light gray stripe */
+   
+}
+
+/* 4. Ensure the merged Customer ID and Name cells look correct */
+.grouped-cell {
+    vertical-align: middle !important;
+    font-weight: 500;
+    text-align: left;
+    border-right: 1px solid #dee2e6 !important;
+}
+
+/* 5. Keep the hover effect functional over the custom stripes */
+.custom-grouped-table tbody tr:hover td {
+    background-color: #f1f5f9 !important;
+}
 
 /* Modern Table Layout */
 .table {
