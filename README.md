@@ -97,6 +97,8 @@ These screenshots demonstrate the main functionality of the Rewards Dashboard.
 ### 1. Dashboard Overview
 The primary interface displaying calculated rewards and transaction history.
 ![Main Dashboard](src/assets/rewards-app.png)
+![Main Dashboard](src/assets/MonthlyRewards.png)
+![Main Dashboard](src/assets/Totalrewards.png)
 
 ### 2. Search & Filtering
 Global Search Real-time filtering by customer names.
